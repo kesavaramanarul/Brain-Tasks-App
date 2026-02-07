@@ -18,13 +18,21 @@ phases:
   
   pre_build:
     commands:
+      - echo "Upgrading AWS CLI and checking permissions..."
+      - pip install --upgrade awscli
       - echo "Checking/Creating EKS Cluster..."
       - |
         if aws eks describe-cluster --name brain-tasks-cluster --region eu-north-1 >/dev/null 2>&1; then
-          echo "Cluster already exists."
+          echo "Cluster already exists and is accessible."
         else
-          echo "Cluster not found. Creating brain-tasks-cluster (m7i-flex.large)..."
-          eksctl create cluster --name brain-tasks-cluster --region eu-north-1 --nodegroup-name standard-nodes --node-type m7i-flex.large --nodes 2 --managed
+          echo "Cluster not found or not accessible. Starting eksctl create..."
+          eksctl create cluster \
+            --name brain-tasks-cluster \
+            --region eu-north-1 \
+            --nodegroup-name standard-nodes \
+            --node-type m7i-flex.large \
+            --nodes 2 \
+            --managed
         fi
       - echo "Logging in to Amazon ECR..."
       - aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin 944443936935.dkr.ecr.eu-north-1.amazonaws.com
@@ -51,5 +59,6 @@ phases:
       - kubectl apply -f service.yaml
 
       - echo "Automation Complete."
+
 
 
