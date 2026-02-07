@@ -5,6 +5,7 @@ env:
     AWS_ACCOUNT_ID: "944443936935"
     AWS_DEFAULT_REGION: "eu-north-1"
     IMAGE_REPO_NAME: "brain-tasks-app"
+    CLUSTER_NAME: "brain-tasks-cluster"
     REPOSITORY_URI: "944443936935.dkr.ecr.eu-north-1.amazonaws.com/brain-tasks-app"
 
 phases:
@@ -59,6 +60,7 @@ phases:
       - kubectl apply -f service.yaml
 
       - echo "Automation Complete."
+
 
 
 
