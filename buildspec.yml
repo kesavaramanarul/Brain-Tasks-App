@@ -18,8 +18,14 @@ phases:
   
   pre_build:
     commands:
-      - echo "Checking if EKS cluster exists..."
-      - | 
+      - echo "Checking/Creating EKS Cluster..."
+      # This command checks if cluster exists; if not, it creates it.
+      - |
+        if ! aws eks describe-cluster --name brain-tasks-cluster --region eu-north-1 >/dev/null 2>&1; then
+          echo "Cluster not found. Creating brain-tasks-cluster (m7i-flex.large)..."
+          eksctl create cluster --name brain-tasks-cluster --region eu-north-1 --nodegroup-name standard-nodes --node-type m7i-flex.large --nodes 2 --managed
+        else
+          echo "Cluster already exists."
       - echo "Logging in to Amazon ECR..."
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
@@ -46,3 +52,4 @@ phases:
       - kubectl apply -f service.yaml
 
       - echo "Automation Complete."
+
